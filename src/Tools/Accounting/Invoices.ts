@@ -3,7 +3,6 @@ import { IMcpServerTool } from "../IMcpServerTool.js";
 import { XeroAccountingApiSchema } from "../../Resources/xero_accounting.js";
 import { parseArrayValues } from "../../Utils/parseArrayValues.js";
 import { convertToCamelCase } from "../../Utils/convertToCamelCase.js";
-import { sanitizeObject } from "../../Utils/sanitizeValues.js";
 
 export const ListInvoicesTool: IMcpServerTool = {
   requestSchema: {
@@ -181,9 +180,7 @@ export const UpdateInvoiceTool: IMcpServerTool = {
     const idempotencyKey = parsedData?.idempotencyKey as string | undefined;
 
     const rawInvoicesPayload = parsedData?.invoices;
-    const invoicesPayload = sanitizeObject(
-      convertToCamelCase(rawInvoicesPayload)
-    );
+    const invoicesPayload = convertToCamelCase(rawInvoicesPayload);
 
     if (!invoiceID) {
       // Should be prevented by request schema, but keep a hard guard.

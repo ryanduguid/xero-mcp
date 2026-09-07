@@ -12,8 +12,13 @@ if (!process.env.XERO_REDIRECT_URI) {
 
 const REDIRECT_URI = new URL(process.env.XERO_REDIRECT_URI);
 
-const REDIRECT_PORT = REDIRECT_URI?.port ?? process.env.PORT ?? 5000;
-const REDIRECT_PATH = REDIRECT_URI?.pathname ?? "/callback";
+const REDIRECT_PORT = REDIRECT_URI.port || undefined;
+if (!REDIRECT_PORT) {
+  throw new Error(
+    "XERO_REDIRECT_URI must include an explicit port, e.g. http://localhost:5000/callback",
+  );
+}
+const REDIRECT_PATH = REDIRECT_URI.pathname;
 
 const AUTH_SUCCESS_HTML = `<!doctype html><html><head><meta charset="utf-8"><title>Xero MCP authenticated</title>
 <style>body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;max-width:32rem;margin:4rem auto;padding:0 1rem;color:#111}</style>

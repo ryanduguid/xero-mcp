@@ -36,7 +36,7 @@ jobs:
         env:
           XERO_CLIENT_ID: test
           XERO_CLIENT_SECRET: test
-          XERO_REDIRECT_URI: localhost:5000/callback
+          XERO_REDIRECT_URI: http://localhost:5000/callback
         run: |
           set -euo pipefail
           node build/index.js 2>server-start.log &
