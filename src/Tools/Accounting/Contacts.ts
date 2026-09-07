@@ -4,7 +4,6 @@ import { Contacts } from "xero-node";
 import { XeroAccountingApiSchema } from "../../Resources/xero_accounting.js";
 import { parseArrayValues } from "../../Utils/parseArrayValues.js";
 import { convertToCamelCase } from "../../Utils/convertToCamelCase.js";
-import { sanitizeObject } from "../../Utils/sanitizeValues.js";
 
 export const ListContactsTool: IMcpServerTool = {
   requestSchema: {
@@ -97,7 +96,7 @@ export const CreateContactsTool: IMcpServerTool = {
     const response =
       await XeroClientSession.xeroClient.accountingApi.createContacts(
         XeroClientSession.activeTenantId()!!,
-        sanitizeObject(contacts)
+        contacts
       );
     return { content: [{ type: "text", text: JSON.stringify(response.body) }] };
   },

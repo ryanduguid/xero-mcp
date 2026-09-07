@@ -4,7 +4,6 @@ import { XeroAccountingApiSchema } from "../../Resources/xero_accounting.js";
 import { parseArrayValues } from "../../Utils/parseArrayValues.js";
 import { convertToCamelCase } from "../../Utils/convertToCamelCase.js";
 import { BankTransactions } from "xero-node";
-import { sanitizeObject } from "../../Utils/sanitizeValues.js";
 
 export const GetBankTransactionTool: IMcpServerTool = {
   requestSchema: {
@@ -120,7 +119,7 @@ export const CreateBankTransactionsTool: IMcpServerTool = {
     const response =
       await XeroClientSession.xeroClient.accountingApi.createBankTransactions(
         XeroClientSession.activeTenantId()!!,
-        sanitizeObject(bankTransactions)
+        bankTransactions
       );
     return { content: [{ type: "text", text: JSON.stringify(response.body) }] };
   },
@@ -171,8 +170,8 @@ export const UpdateBankTransactionTool: IMcpServerTool = {
     const idempotencyKey = parsedData?.idempotencyKey as string | undefined;
 
     const rawBankTransactionsPayload = parsedData?.bankTransactions;
-    const bankTransactionsPayload: BankTransactions = sanitizeObject(
-      convertToCamelCase(rawBankTransactionsPayload)
+    const bankTransactionsPayload: BankTransactions = convertToCamelCase(
+      rawBankTransactionsPayload
     );
 
     if (!bankTransactionID) {
