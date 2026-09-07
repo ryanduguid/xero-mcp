@@ -16,6 +16,66 @@
 
 
 
+## [3.0.0](https://github.com/ryanduguid/xero-mcp/compare/xero-mcp-v2.2.2...xero-mcp-v3.0.0) (2026-09-07)
+
+
+### ⚠ BREAKING CHANGES
+
+* update Xero api client to use granualr scopes ([#24](https://github.com/ryanduguid/xero-mcp/issues/24))
+
+### Features
+
+* add new MCP tools for bank transactions and invoice/bills ([#10](https://github.com/ryanduguid/xero-mcp/issues/10)) ([b815418](https://github.com/ryanduguid/xero-mcp/commit/b8154183c4bdf3d0d433e3a14d0e388b43681c86))
+* add where, order and page filters to list tools. ([#29](https://github.com/ryanduguid/xero-mcp/issues/29)) ([7057b16](https://github.com/ryanduguid/xero-mcp/commit/7057b1637f48b0ca24e82fd8e867e94d1a0652be))
+* allow redirect port to be inferred from redirect uri ([#68](https://github.com/ryanduguid/xero-mcp/issues/68)) ([d250bad](https://github.com/ryanduguid/xero-mcp/commit/d250bad099076f6502cab1f8121bf5b0d7afd0ca))
+* refresh access token when there are tool calls in last 30 minutes ([#72](https://github.com/ryanduguid/xero-mcp/issues/72)) ([dc4e10f](https://github.com/ryanduguid/xero-mcp/commit/dc4e10f4de210e96673d59e5ddb905e70c5f7ed3))
+* update Xero api client to use granualr scopes ([#24](https://github.com/ryanduguid/xero-mcp/issues/24)) ([e5de6be](https://github.com/ryanduguid/xero-mcp/commit/e5de6bec796174b57f54c2154443adaced30ea7b))
+
+
+### Bug Fixes
+
+* auth browser tab hang after oauth flow ended ([#84](https://github.com/ryanduguid/xero-mcp/issues/84)) ([528bade](https://github.com/ryanduguid/xero-mcp/commit/528bade0a9d5647d751ce5c37d24f8ac29408e0e))
+* **deps-dev:** bump @types/node from 25.5.0 to 25.9.1 ([#77](https://github.com/ryanduguid/xero-mcp/issues/77)) ([3277267](https://github.com/ryanduguid/xero-mcp/commit/3277267eee76818260b2cc522dac4694a4e62ab3))
+* **deps-dev:** bump handlebars from 4.7.8 to 4.7.9 ([#41](https://github.com/ryanduguid/xero-mcp/issues/41)) ([5932010](https://github.com/ryanduguid/xero-mcp/commit/5932010b48242ecc1f652ae278f8b8cde63d78b1))
+* **deps-dev:** bump jest and @types/jest ([#73](https://github.com/ryanduguid/xero-mcp/issues/73)) ([f4fa1a1](https://github.com/ryanduguid/xero-mcp/commit/f4fa1a16017faad0ad1b9a678987f999f1a7df33))
+* **deps-dev:** bump picomatch from 2.3.1 to 2.3.2 ([#55](https://github.com/ryanduguid/xero-mcp/issues/55)) ([485a4a2](https://github.com/ryanduguid/xero-mcp/commit/485a4a225386060543ead1f82331815eb8bdd260))
+* **deps-dev:** bump ts-jest from 29.4.10 to 29.4.11 ([#81](https://github.com/ryanduguid/xero-mcp/issues/81)) ([18b6ea6](https://github.com/ryanduguid/xero-mcp/commit/18b6ea64bd0a4c1032d49eb09cfed71fc48e4c37))
+* **deps-dev:** bump ts-jest from 29.4.6 to 29.4.10 ([#65](https://github.com/ryanduguid/xero-mcp/issues/65)) ([04b676d](https://github.com/ryanduguid/xero-mcp/commit/04b676d1506935a2c6df4d91477efd25713d8ee3))
+* **deps-dev:** bump tsx from 4.19.3 to 4.22.3 ([#80](https://github.com/ryanduguid/xero-mcp/issues/80)) ([3f83c54](https://github.com/ryanduguid/xero-mcp/commit/3f83c5407758c7f483ddfd7bc29420d0cfbfea14))
+* **deps-dev:** bump typescript from 5.9.3 to 6.0.3 ([#62](https://github.com/ryanduguid/xero-mcp/issues/62)) ([cccf477](https://github.com/ryanduguid/xero-mcp/commit/cccf4777820b517db4c27c7146509f2918e2afe5))
+* **deps:** bump @hono/node-server from 1.19.12 to 1.19.14 ([#58](https://github.com/ryanduguid/xero-mcp/issues/58)) ([78a3824](https://github.com/ryanduguid/xero-mcp/commit/78a3824ccf81108839ab2b91202efdd87f570cea))
+* **deps:** bump @modelcontextprotocol/sdk from 1.29.0 to 1.30.0 ([#118](https://github.com/ryanduguid/xero-mcp/issues/118)) ([0070cad](https://github.com/ryanduguid/xero-mcp/commit/0070cad742a838f8f608fb2bea8ec0ea6a09d948))
+* **deps:** bump @modelcontextprotocol/sdk from 1.7.0 to 1.29.0 ([#40](https://github.com/ryanduguid/xero-mcp/issues/40)) ([65de281](https://github.com/ryanduguid/xero-mcp/commit/65de281ab7731c2768b5a9d094df47c355849367))
+* **deps:** bump axios from 1.8.3 to 1.16.1 ([#43](https://github.com/ryanduguid/xero-mcp/issues/43)) ([11f93c6](https://github.com/ryanduguid/xero-mcp/commit/11f93c6ebdaa62a6cf760cc5cf0614f35ab05a68))
+* **deps:** bump brace-expansion ([#116](https://github.com/ryanduguid/xero-mcp/issues/116)) ([a467caf](https://github.com/ryanduguid/xero-mcp/commit/a467caf3c98b24c048be38389e0658c1b78c204d))
+* **deps:** bump dotenv from 17.3.1 to 17.4.2 ([#61](https://github.com/ryanduguid/xero-mcp/issues/61)) ([add0f76](https://github.com/ryanduguid/xero-mcp/commit/add0f766d6317960466684a0bb93285d313b7827))
+* **deps:** bump fast-uri from 3.1.0 to 3.1.2 ([#50](https://github.com/ryanduguid/xero-mcp/issues/50)) ([67ca4e3](https://github.com/ryanduguid/xero-mcp/commit/67ca4e37654599af3e27581bd5fd0b38cc51a2c2))
+* **deps:** bump fast-uri from 3.1.2 to 3.1.4 ([#111](https://github.com/ryanduguid/xero-mcp/issues/111)) ([96abf3d](https://github.com/ryanduguid/xero-mcp/commit/96abf3d0c43570264e3aa067f40fe0c51628f60c))
+* **deps:** bump fast-uri from 3.1.4 to 3.1.5 ([#120](https://github.com/ryanduguid/xero-mcp/issues/120)) ([baebc0f](https://github.com/ryanduguid/xero-mcp/commit/baebc0f2699deed7d56c4d65ce7badc6ac8a6c04))
+* **deps:** bump fast-uri from 3.1.5 to 3.1.7 ([#127](https://github.com/ryanduguid/xero-mcp/issues/127)) ([cd02329](https://github.com/ryanduguid/xero-mcp/commit/cd0232966e796d7cff2c5a29cc73efc18fdd9735))
+* **deps:** bump form-data from 4.0.2 to 4.0.5 ([#31](https://github.com/ryanduguid/xero-mcp/issues/31)) ([87b528a](https://github.com/ryanduguid/xero-mcp/commit/87b528a702e42cd63b4e0b50916471a744b636ae))
+* **deps:** bump form-data from 4.0.5 to 4.0.6 in the npm_and_yarn group across 1 directory ([#95](https://github.com/ryanduguid/xero-mcp/issues/95)) ([efca164](https://github.com/ryanduguid/xero-mcp/commit/efca16498560921bc246471b099b34a817ce3b5c))
+* **deps:** bump googleapis/release-please-action from 4.4.1 to 5.0.0 ([#60](https://github.com/ryanduguid/xero-mcp/issues/60)) ([b2862ea](https://github.com/ryanduguid/xero-mcp/commit/b2862ea02765aa3d6f74addd0cf523b7f50bbc58))
+* **deps:** bump hono from 4.12.10 to 4.12.19 ([#53](https://github.com/ryanduguid/xero-mcp/issues/53)) ([bc0e5af](https://github.com/ryanduguid/xero-mcp/commit/bc0e5af8ad8a17bc9a304f01dca535b3860f32dd))
+* **deps:** bump hono from 4.12.19 to 4.12.23 in the npm_and_yarn group across 1 directory ([#87](https://github.com/ryanduguid/xero-mcp/issues/87)) ([3137ccb](https://github.com/ryanduguid/xero-mcp/commit/3137ccb17ea4004a654b1c6ca6c9f84e57ae6502))
+* **deps:** bump hono from 4.12.23 to 4.12.26 in the npm_and_yarn group across 1 directory ([#94](https://github.com/ryanduguid/xero-mcp/issues/94)) ([61cd2af](https://github.com/ryanduguid/xero-mcp/commit/61cd2af4394b0d207b4dee01ebaee2ba666147b2))
+* **deps:** bump hono from 4.12.26 to 4.12.31 ([#110](https://github.com/ryanduguid/xero-mcp/issues/110)) ([ec09504](https://github.com/ryanduguid/xero-mcp/commit/ec095047f4c49751fb5ab6106c910025dd243c8c))
+* **deps:** bump hono from 4.12.31 to 4.13.1 ([#121](https://github.com/ryanduguid/xero-mcp/issues/121)) ([73a01d1](https://github.com/ryanduguid/xero-mcp/commit/73a01d11a24e8f09e560ce85ee0e523edff1b6b3))
+* **deps:** bump ip-address and express-rate-limit ([#56](https://github.com/ryanduguid/xero-mcp/issues/56)) ([8c828ea](https://github.com/ryanduguid/xero-mcp/commit/8c828ea7cf628e49f0287d0c794a49e97dd5dbb7))
+* **deps:** bump ip-address from 10.2.0 to 10.4.0 ([#117](https://github.com/ryanduguid/xero-mcp/issues/117)) ([71169da](https://github.com/ryanduguid/xero-mcp/commit/71169da39e7166f5649370399d7e0d548543ad9c))
+* **deps:** bump js-yaml from 3.14.1 to 3.14.2 ([#57](https://github.com/ryanduguid/xero-mcp/issues/57)) ([da8916c](https://github.com/ryanduguid/xero-mcp/commit/da8916cbf23d7456bd7f50494d578f7c1f8f2cd6))
+* **deps:** bump minimatch from 3.1.2 to 3.1.5 ([#51](https://github.com/ryanduguid/xero-mcp/issues/51)) ([b368fa9](https://github.com/ryanduguid/xero-mcp/commit/b368fa97ea49d28a081fb600390a005d84e104fb))
+* **deps:** bump qs from 6.15.0 to 6.15.2 ([#70](https://github.com/ryanduguid/xero-mcp/issues/70)) ([531a4e3](https://github.com/ryanduguid/xero-mcp/commit/531a4e386449812a74cad61ca347b144880c4f3a))
+* **deps:** bump the npm_and_yarn group across 1 directory with 2 updates ([#104](https://github.com/ryanduguid/xero-mcp/issues/104)) ([e658825](https://github.com/ryanduguid/xero-mcp/commit/e658825a9b80cf45f6b07a3147583c74f721d679))
+* **deps:** bump xero-node from 15.0.0 to 17.0.0 ([#74](https://github.com/ryanduguid/xero-mcp/issues/74)) ([c9b1acb](https://github.com/ryanduguid/xero-mcp/commit/c9b1acb2687846052009b6fe86dc9118d4a42a78))
+* **deps:** bump xero-node from 17.0.0 to 18.0.0 ([#91](https://github.com/ryanduguid/xero-mcp/issues/91)) ([7362969](https://github.com/ryanduguid/xero-mcp/commit/7362969ff983a0d303719de984965e3731e1d9ac))
+* **deps:** bump xero-node from 18.0.0 to 19.0.0 ([#109](https://github.com/ryanduguid/xero-mcp/issues/109)) ([1d11672](https://github.com/ryanduguid/xero-mcp/commit/1d11672ce1682badb9b856424cc5fc6fa55e909b))
+* **deps:** bump xero-node from 19.0.0 to 19.1.0 ([#125](https://github.com/ryanduguid/xero-mcp/issues/125)) ([d9b3c15](https://github.com/ryanduguid/xero-mcp/commit/d9b3c15c4b3b7c337e20a23826c782a3d7d01054))
+* **deps:** bump zod from 3.24.2 to 4.4.3 ([#83](https://github.com/ryanduguid/xero-mcp/issues/83)) ([ee384d3](https://github.com/ryanduguid/xero-mcp/commit/ee384d393332d8257e13cb891c825873370e04d9))
+* **deps:** bump zod from 4.4.3 to 4.5.4 ([#130](https://github.com/ryanduguid/xero-mcp/issues/130)) ([97e0c9e](https://github.com/ryanduguid/xero-mcp/commit/97e0c9e0b72ce56edf66b4dd0aa41a2f216e95c5))
+* package-lock.json ([92f1293](https://github.com/ryanduguid/xero-mcp/commit/92f1293180b65a25a42864560846cdc14fa4d626))
+* preserve ledger text and reject portless OAuth callbacks ([#1](https://github.com/ryanduguid/xero-mcp/issues/1)) ([16691e6](https://github.com/ryanduguid/xero-mcp/commit/16691e6df65151358166030dc3b6be631a12d756))
+
 ## [2.2.2](https://github.com/john-zhang-dev/xero-mcp/compare/xero-mcp-v2.2.1...xero-mcp-v2.2.2) (2026-07-26)
 
 
