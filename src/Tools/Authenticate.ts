@@ -23,7 +23,9 @@ const REDIRECT_PATH = REDIRECT_URI.pathname;
 if (REDIRECT_URI.protocol !== "http:" || !["localhost", "127.0.0.1", "[::1]"].includes(REDIRECT_URI.hostname)) {
   throw new Error("XERO_REDIRECT_URI must use HTTP on a loopback host.");
 }
-const REDIRECT_HOST = REDIRECT_URI.hostname === "[::1]" ? "::1" : "127.0.0.1";
+const REDIRECT_HOSTS = REDIRECT_URI.hostname === "localhost"
+  ? ["127.0.0.1", "::1"]
+  : [REDIRECT_URI.hostname === "[::1]" ? "::1" : "127.0.0.1"];
 let authenticationPending = false;
 
 const AUTH_SUCCESS_HTML = `<!doctype html><html><head><meta charset="utf-8"><title>Xero MCP authenticated</title>
@@ -50,7 +52,7 @@ export const AuthenticateTool: IMcpServerTool = {
   },
   requestHandler: async () => {
     if (authenticationPending) throw new Error("Xero authentication is already in progress.");
-    const server = http.createServer();
+    const servers = REDIRECT_HOSTS.map(() => http.createServer());
     authenticationPending = true;
     let oauth2Process: Awaited<ReturnType<typeof open>> | undefined;
     let timeout: ReturnType<typeof setTimeout> | undefined;
@@ -64,8 +66,7 @@ export const AuthenticateTool: IMcpServerTool = {
           acceptingCallback = false;
           reject(new Error("Xero authentication timed out after 2 minutes."));
         }, 120_000);
-        server.once("error", reject);
-        server.on("request", async (req, res) => {
+        const handleRequest: http.RequestListener = async (req, res) => {
           let url: URL;
           try {
             url = new URL(req.url ?? "/", REDIRECT_URI);
@@ -127,15 +128,34 @@ export const AuthenticateTool: IMcpServerTool = {
               ),
             );
           }
-        });
-        server.listen(Number(REDIRECT_PORT), REDIRECT_HOST, () => {
-          open(consentUrl).then((child) => { oauth2Process = child; }).catch(reject);
-        });
+        };
+        const bindings = servers.map((server, index) => new Promise<void>((bound, failed) => {
+          let listening = false;
+          server.once("error", (error) => {
+            if (listening) reject(error); else failed(error);
+          });
+          server.on("request", handleRequest);
+          server.listen(Number(REDIRECT_PORT), REDIRECT_HOSTS[index], () => {
+            listening = true;
+            bound();
+          });
+        }));
+        Promise.allSettled(bindings).then(async (results) => {
+          if (!acceptingCallback) {
+            servers.forEach(server => server.close());
+            return;
+          }
+          const failures = results.filter(result => result.status === "rejected");
+          const fatal = failures.find(result => !["EAFNOSUPPORT", "EPROTONOSUPPORT", "EADDRNOTAVAIL"].includes(result.reason.code));
+          if (fatal) throw fatal.reason;
+          if (failures.length === servers.length) throw failures[0].reason;
+          oauth2Process = await open(consentUrl);
+        }).catch(reject);
       });
     } finally {
       acceptingCallback = false;
       if (timeout) clearTimeout(timeout);
-      server.close();
+      servers.forEach(server => server.close());
       XeroClientSession.xeroClient.config!.state = undefined;
       authenticationPending = false;
       try {
