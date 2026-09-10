@@ -1,6 +1,7 @@
 import { XeroClientSession } from "../XeroApiClient.js";
 import { IMcpServerTool } from "./IMcpServerTool.js";
 import http from "http";
+import { randomBytes } from "node:crypto";
 import open from "open";
 import { CallToolResult } from "@modelcontextprotocol/sdk/types.js";
 
@@ -19,6 +20,11 @@ if (!REDIRECT_PORT) {
   );
 }
 const REDIRECT_PATH = REDIRECT_URI.pathname;
+if (REDIRECT_URI.protocol !== "http:" || !["localhost", "127.0.0.1", "[::1]"].includes(REDIRECT_URI.hostname)) {
+  throw new Error("XERO_REDIRECT_URI must use HTTP on a loopback host.");
+}
+const REDIRECT_HOST = REDIRECT_URI.hostname === "[::1]" ? "::1" : "127.0.0.1";
+let authenticationPending = false;
 
 const AUTH_SUCCESS_HTML = `<!doctype html><html><head><meta charset="utf-8"><title>Xero MCP authenticated</title>
 <style>body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;max-width:32rem;margin:4rem auto;padding:0 1rem;color:#111}</style>
@@ -43,17 +49,46 @@ export const AuthenticateTool: IMcpServerTool = {
     inputSchema: { type: "object", properties: {} },
   },
   requestHandler: async () => {
-    const consentUrl = await XeroClientSession.xeroClient.buildConsentUrl();
+    if (authenticationPending) throw new Error("Xero authentication is already in progress.");
     const server = http.createServer();
-    server.listen(REDIRECT_PORT);
-    const oauth2Process = await open(consentUrl);
-
-    const authTask = new Promise<CallToolResult>((resolve, reject) => {
-      server.on("request", async (req, res) => {
-        if (req.url && req.url.includes(REDIRECT_PATH)) {
+    authenticationPending = true;
+    let oauth2Process: Awaited<ReturnType<typeof open>> | undefined;
+    let timeout: ReturnType<typeof setTimeout> | undefined;
+    let acceptingCallback = true;
+    try {
+      const state = randomBytes(32).toString("hex");
+      XeroClientSession.xeroClient.config!.state = state;
+      const consentUrl = await XeroClientSession.xeroClient.buildConsentUrl();
+      return await new Promise<CallToolResult>((resolve, reject) => {
+        timeout = setTimeout(() => {
+          acceptingCallback = false;
+          reject(new Error("Xero authentication timed out after 2 minutes."));
+        }, 120_000);
+        server.once("error", reject);
+        server.on("request", async (req, res) => {
+          let url: URL;
+          try {
+            url = new URL(req.url ?? "/", REDIRECT_URI);
+          } catch {
+            res.writeHead(400);
+            res.end("Invalid callback URL.");
+            return;
+          }
+          if (url.pathname !== REDIRECT_PATH) {
+            res.writeHead(404);
+            res.end("Not found");
+            return;
+          }
+          if (!acceptingCallback || url.searchParams.get("state") !== state) {
+            res.writeHead(400, { "Content-Type": "text/plain; charset=utf-8" });
+            res.end("Invalid OAuth state.");
+            return;
+          }
+          acceptingCallback = false;
+          clearTimeout(timeout);
           try {
             const tokenSet = await XeroClientSession.xeroClient.apiCallback(
-              req.url,
+              req.url!,
             );
             XeroClientSession.xeroClient.setTokenSet(tokenSet);
             await XeroClientSession.xeroClient.updateTenants();
@@ -91,18 +126,23 @@ export const AuthenticateTool: IMcpServerTool = {
                 `Error authenticating user: ${error?.message ?? String(error)}`,
               ),
             );
-          } finally {
-            server.close();
-            try {
-              oauth2Process?.kill();
-            } catch {
-              // open() child may already be detached
-            }
           }
-        }
+        });
+        server.listen(Number(REDIRECT_PORT), REDIRECT_HOST, () => {
+          open(consentUrl).then((child) => { oauth2Process = child; }).catch(reject);
+        });
       });
-    });
-
-    return authTask;
+    } finally {
+      acceptingCallback = false;
+      if (timeout) clearTimeout(timeout);
+      server.close();
+      XeroClientSession.xeroClient.config!.state = undefined;
+      authenticationPending = false;
+      try {
+        oauth2Process?.kill();
+      } catch {
+        // The browser process may already be detached.
+      }
+    }
   },
 };
