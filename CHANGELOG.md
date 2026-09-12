@@ -1,12 +1,3 @@
-# [1.4.0](https://github.com/john-zhang-dev/xero-mcp/compare/v1.3.0...v1.4.0) (2026-03-22)
-
-
-### Features
-
-* add new MCP tools for bank transactions and invoice/bills ([#10](https://github.com/john-zhang-dev/xero-mcp/issues/10)) ([b815418](https://github.com/john-zhang-dev/xero-mcp/commit/b8154183c4bdf3d0d433e3a14d0e388b43681c86))
-
-
-
 # [1.3.0](https://github.com/john-zhang-dev/xero-mcp/compare/v1.2.1...v1.3.0) (2025-03-25)
 
 

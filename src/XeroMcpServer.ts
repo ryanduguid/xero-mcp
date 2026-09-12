@@ -51,23 +51,15 @@ export class XeroMcpServer {
     });
 
     this.mcpServer.setRequestHandler(CallToolRequestSchema, async (request) => {
+      const { name } = request.params;
+      const mcpTool = McpToolsFactory.findToolByName(name);
+      if (!mcpTool) {
+        throw new McpError(ErrorCode.InvalidParams, `Tool not found: ${name}`);
+      }
       return await ErrorMiddleware(request, async (request) => {
         return await AuditMiddleware(request, async (request) => {
           return await XeroAuthMiddleware(request, async (request) => {
-            const { name } = request.params;
-            const mcpTool = McpToolsFactory.findToolByName(name);
-            if (mcpTool) {
-              return await mcpTool.requestHandler(request);
-            } else {
-              return {
-                content: [
-                  {
-                    type: "text",
-                    text: `Error: Tool not found: ${name}`,
-                  },
-                ],
-              };
-            }
+            return await mcpTool.requestHandler(request);
           });
         });
       });

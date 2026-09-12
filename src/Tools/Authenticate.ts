@@ -57,14 +57,17 @@ export const AuthenticateTool: IMcpServerTool = {
     let oauth2Process: Awaited<ReturnType<typeof open>> | undefined;
     let timeout: ReturnType<typeof setTimeout> | undefined;
     let acceptingCallback = true;
+    let finished = false;
+    const authClient = XeroClientSession.createAuthenticationClient();
     try {
       const state = randomBytes(32).toString("hex");
-      XeroClientSession.xeroClient.config!.state = state;
-      const consentUrl = await XeroClientSession.xeroClient.buildConsentUrl();
+      authClient.config!.state = state;
+      const consentUrl = await authClient.buildConsentUrl();
       return await new Promise<CallToolResult>((resolve, reject) => {
         timeout = setTimeout(() => {
           acceptingCallback = false;
-          reject(new Error("Xero authentication timed out after 2 minutes."));
+          finished = true;
+          reject(new Error("Xero authentication, including token exchange, timed out after 2 minutes."));
         }, 120_000);
         const handleRequest: http.RequestListener = async (req, res) => {
           let url: URL;
@@ -86,15 +89,19 @@ export const AuthenticateTool: IMcpServerTool = {
             return;
           }
           acceptingCallback = false;
-          clearTimeout(timeout);
           try {
-            const tokenSet = await XeroClientSession.xeroClient.apiCallback(
+            const tokenSet = await authClient.apiCallback(
               req.url!,
             );
-            XeroClientSession.xeroClient.setTokenSet(tokenSet);
-            await XeroClientSession.xeroClient.updateTenants();
+            if (finished) return;
+            authClient.setTokenSet(tokenSet);
+            await authClient.updateTenants();
+            if (finished) return;
+            const tenant = authClient.tenants[0];
+            if (!tenant) throw new Error("No Xero tenant is available.");
+            XeroClientSession.xeroClient = authClient;
             XeroClientSession.setActiveTenantId(
-              XeroClientSession.xeroClient.tenants[0].tenantId,
+              tenant.tenantId,
             );
             XeroClientSession.scheduleTokenRefresh(tokenSet);
 
@@ -154,9 +161,10 @@ export const AuthenticateTool: IMcpServerTool = {
       });
     } finally {
       acceptingCallback = false;
+      finished = true;
       if (timeout) clearTimeout(timeout);
-      servers.forEach(server => server.close());
-      XeroClientSession.xeroClient.config!.state = undefined;
+      servers.forEach(server => { server.close(); server.closeAllConnections(); });
+      authClient.config!.state = undefined;
       authenticationPending = false;
       try {
         oauth2Process?.kill();

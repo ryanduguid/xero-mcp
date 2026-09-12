@@ -49,19 +49,33 @@ class XeroApiClient {
     this._activeTenantId = tenantId;
   }
 
+  createAuthenticationClient(): XeroClient {
+    return new XeroClient({ ...this.xeroClient.config! });
+  }
+
   scheduleTokenRefresh(tokenSet: TokenSet): void {
     if (this._refreshTimer) clearTimeout(this._refreshTimer);
     if (!tokenSet.expires_at) return;
 
-    const now = Math.floor(Date.now() / 1000);
+    const now = Date.now() / 1000;
     if (tokenSet.expires_at <= now) return; // token already expired
 
     let delaySeconds = tokenSet.expires_at - now;
     if (delaySeconds > XeroApiClient.REFRESH_BUFFER_S) {
       delaySeconds -= XeroApiClient.REFRESH_BUFFER_S; // refresh a bit before expiry
+    } else {
+      delaySeconds /= 2;
     }
 
+    this.scheduleRefresh(delaySeconds * 1000);
+  }
+
+  private scheduleRefresh(delayMs: number, retry = 0): void {
+    if (this._refreshTimer) clearTimeout(this._refreshTimer);
+    const client = this.xeroClient;
+
     this._refreshTimer = setTimeout(async () => {
+      if (client !== this.xeroClient) return;
       if (
         Date.now() - Auditor.lastRecordTime() >
         XeroApiClient.INACTIVITY_MS
@@ -74,14 +88,18 @@ class XeroApiClient {
 
       console.error("Refreshing Xero token...");
       try {
-        const newTokenSet = await this.xeroClient.refreshToken();
+        const newTokenSet = await client.refreshToken();
+        if (client !== this.xeroClient) return;
         this.xeroClient.setTokenSet(newTokenSet);
         console.error("Xero token refreshed successfully");
         this.scheduleTokenRefresh(newTokenSet);
       } catch (error) {
         console.error("Error refreshing Xero token: ", error);
+        if (client === this.xeroClient && retry < 3) {
+          this.scheduleRefresh(1000 * 2 ** retry, retry + 1);
+        }
       }
-    }, delaySeconds * 1000).unref();
+    }, delayMs).unref();
   }
 }
 
