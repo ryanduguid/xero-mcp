@@ -11,6 +11,7 @@ jest.mock('../XeroApiClient.js', () => ({
       setTokenSet: jest.fn(), updateTenants: jest.fn(), tenants: [{ tenantId: 'synthetic-tenant' }],
     },
     setActiveTenantId: jest.fn(), scheduleTokenRefresh: jest.fn(),
+    createAuthenticationClient: jest.fn(function (this: any) { return this.xeroClient; }),
   },
 }));
 jest.mock('open', () => ({ __esModule: true, default: jest.fn() }));
@@ -58,7 +59,7 @@ async function startLogin(uri = 'http://127.0.0.1:5000/callback', failures: Reco
       if (typeof callback === 'function') callback();
     }),
     on: jest.fn((event: string, fn: any) => { if (event === 'request') handler = fn; }),
-    once: jest.fn<void, [string, (error: Error) => void]>(), close: jest.fn(),
+    once: jest.fn<void, [string, (error: Error) => void]>(), close: jest.fn(), closeAllConnections: jest.fn(),
     };
     servers.push(server);
     return server as never;
@@ -217,7 +218,7 @@ it('expires an unanswered attempt and closes its listener', async () => {
   jest.useFakeTimers();
   const login = await startLogin();
   await jest.advanceTimersByTimeAsync(120_000);
-  expect(await login.result).toEqual(new Error('Xero authentication timed out after 2 minutes.'));
+  expect(await login.result).toEqual(new Error('Xero authentication, including token exchange, timed out after 2 minutes.'));
   expect(login.server.close).toHaveBeenCalled();
   const expired = await login.callback({ code: 'synthetic-code', state: login.state! });
   expect(expired.writeHead.mock.calls[0][0]).toBe(400);
@@ -231,4 +232,22 @@ it('invalidates the attempt after a callback server error', async () => {
   const late = await login.callback({ code: 'synthetic-code', state: login.state! });
   expect(late.writeHead.mock.calls[0][0]).toBe(400);
   expect(login.session.xeroClient.apiCallback).not.toHaveBeenCalled();
+});
+
+it.each(['apiCallback', 'updateTenants'])('keeps the deadline active during %s and refuses late activation', async (method) => {
+  jest.useFakeTimers();
+  const login = await startLogin();
+  let finish!: (value: unknown) => void;
+  login.session.xeroClient[method].mockImplementationOnce(() => new Promise(resolve => { finish = resolve; }));
+  let outcome: unknown;
+  login.result.then((value: unknown) => { outcome = value; });
+  const callback = login.callback({ code: 'synthetic-code', state: login.state! });
+  for (let i = 0; i < 10; i++) await Promise.resolve();
+  await jest.advanceTimersByTimeAsync(120_000);
+  expect(outcome).toEqual(new Error('Xero authentication, including token exchange, timed out after 2 minutes.'));
+  expect(login.server.closeAllConnections).toHaveBeenCalled();
+  finish({ access_token: 'synthetic-token' });
+  await callback;
+  expect(login.session.setActiveTenantId).not.toHaveBeenCalled();
+  expect(login.session.scheduleTokenRefresh).not.toHaveBeenCalled();
 });
