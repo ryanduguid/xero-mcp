@@ -9,10 +9,12 @@ export const XeroAuthMiddleware: IRequestMiddleware = async (request, next) => {
   }
   if (!XeroClientSession.isAuthenticated()) {
     return Promise.resolve({
+      isError: true,
       content: [
         {
           type: "text",
-          text: "You must authenticate with Xero first",
+          text:
+            "You must authenticate with Xero first. Call the authenticate tool to open the Xero login page.",
         },
       ],
     });

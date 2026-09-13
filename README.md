@@ -25,7 +25,14 @@ This MCP server allows Clients to interact with [Xero Accounting Software](https
    - On the left-hand side of the screen select Configuration
    - Click Generate a secret
 
-3. Configure your MCP client:
+3. Choose an installation route.
+
+   `xero-mcp` on npm is the upstream release (2.2.2). It does not carry the changes in this fork, including the loopback binding note above, the schema and array-parsing corrections and the tool error flag. Pick the route that matches what you want:
+
+   - Upstream release: keep `npx -y xero-mcp@latest` in the examples below.
+   - This fork: clone it, run `npm ci && npm run build`, then point `command` at `node` and `args` at the absolute path of `build/index.js`.
+
+4. Configure your MCP client:
 
    ### Claude Desktop
 
@@ -63,7 +70,7 @@ This MCP server allows Clients to interact with [Xero Accounting Software](https
 
    The server will be available in your next Claude Code session. To make it available across all projects, add `--scope user` to the command above.
 
-4. When accessing a Xero tool for the first time, a Xero login page will pop up to ask your consent. Complete the auth flow and manually close the web page (as the Xero page will not auto close in this version)
+5. Run the `authenticate` tool. That tool, and only that tool, opens the Xero login page for your consent. Complete the auth flow and manually close the web page (the Xero page does not auto close in this version). Any other Xero tool called before then returns `You must authenticate with Xero first`; it does not start the login flow for you.
 
    **Privacy alert: after completing the Xero OAuth2 flow, your Xero data may go through the LLM that you use. If you are doing testing you should authorize to your [Xero Demo Company](https://central.xero.com/s/article/Use-the-demo-company).**
 

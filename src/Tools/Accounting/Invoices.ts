@@ -3,6 +3,7 @@ import { IMcpServerTool } from "../IMcpServerTool.js";
 import { XeroAccountingApiSchema } from "../../Resources/xero_accounting.js";
 import { parseArrayValues } from "../../Utils/parseArrayValues.js";
 import { convertToCamelCase } from "../../Utils/convertToCamelCase.js";
+import { collectSchemaComponents } from "../../Utils/collectSchemaComponents.js";
 
 export const ListInvoicesTool: IMcpServerTool = {
   requestSchema: {
@@ -168,12 +169,18 @@ export const UpdateInvoiceTool: IMcpServerTool = {
             "Optional idempotency key. Allows safe retries without duplicating processing",
         },
       },
+      components: collectSchemaComponents(
+        XeroAccountingApiSchema.components.schemas.Invoices.properties
+      ),
       required: ["invoiceID", "invoices"],
     },
   },
   requestHandler: async (request) => {
     const rawInputData = request.params.arguments;
-    const parsedData = parseArrayValues(rawInputData);
+    const parsedData = parseArrayValues(
+      rawInputData,
+      UpdateInvoiceTool.requestSchema.inputSchema
+    );
 
     const invoiceID = parsedData?.invoiceID as string | undefined;
     const unitdp = parsedData?.unitdp as number | undefined;

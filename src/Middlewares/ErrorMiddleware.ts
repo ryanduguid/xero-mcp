@@ -5,6 +5,7 @@ export const ErrorMiddleware: IRequestMiddleware = async (request, next) => {
     return await next(request);
   } catch (error: any) {
     return {
+      isError: true,
       content: [
         {
           type: "text",

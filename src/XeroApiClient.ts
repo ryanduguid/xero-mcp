@@ -38,7 +38,10 @@ class XeroApiClient {
   }
 
   isAuthenticated() {
-    return this.xeroClient.readTokenSet() ? true : false;
+    // The SDK returns an empty token set before any login, so the presence of
+    // the object says nothing. A usable session needs an access token.
+    const tokenSet = this.xeroClient.readTokenSet();
+    return Boolean(tokenSet && tokenSet.access_token);
   }
 
   activeTenantId() {

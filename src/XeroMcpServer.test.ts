@@ -11,7 +11,7 @@ jest.mock('./Tools/McpToolsFactory.js', () => ({
 jest.mock('./Middlewares/XeroAuthMiddleware.js', () => ({XeroAuthMiddleware: jest.fn()}));
 
 it('rejects an unknown tool as a protocol error before authentication or error conversion', async () => {
-  const server = new XeroMcpServer() as any;
+  const server = new XeroMcpServer('9.9.9-test') as any;
   server.configureTools();
   const handler = server.mcpServer.setRequestHandler.mock.calls.find(([schema]: any[]) => schema === CallToolRequestSchema)[1];
   const result = handler({method: 'tools/call', params: {name: 'unknown'}});
