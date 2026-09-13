@@ -11,6 +11,8 @@ permissions:
 
 jobs:
   release-please:
+    # Forks cannot publish the xero-mcp package, so only the upstream repository releases.
+    if: github.repository == 'john-zhang-dev/xero-mcp'
     runs-on: ubuntu-latest
     permissions:
       contents: write
