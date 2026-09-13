@@ -4,6 +4,7 @@ import { Contacts } from "xero-node";
 import { XeroAccountingApiSchema } from "../../Resources/xero_accounting.js";
 import { parseArrayValues } from "../../Utils/parseArrayValues.js";
 import { convertToCamelCase } from "../../Utils/convertToCamelCase.js";
+import { collectSchemaComponents } from "../../Utils/collectSchemaComponents.js";
 
 export const ListContactsTool: IMcpServerTool = {
   requestSchema: {
@@ -86,12 +87,18 @@ export const CreateContactsTool: IMcpServerTool = {
       description: "Contacts with an array of Contact objects to create",
       properties:
         XeroAccountingApiSchema.components.schemas.Contacts.properties,
+      components: collectSchemaComponents(
+        XeroAccountingApiSchema.components.schemas.Contacts.properties
+      ),
       example: '{ contacts: [{ name: "John Doe" }]}',
     },
   },
   requestHandler: async (request) => {
     const rawInputData = request.params.arguments;
-    const parsedData = parseArrayValues(rawInputData);
+    const parsedData = parseArrayValues(
+      rawInputData,
+      CreateContactsTool.requestSchema.inputSchema
+    );
     const contacts: Contacts = convertToCamelCase(parsedData);
     const response =
       await XeroClientSession.xeroClient.accountingApi.createContacts(

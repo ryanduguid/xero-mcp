@@ -3,6 +3,7 @@ import { XeroClientSession } from "../../XeroApiClient.js";
 import { XeroAccountingApiSchema } from "../../Resources/xero_accounting.js";
 import { parseArrayValues } from "../../Utils/parseArrayValues.js";
 import { convertToCamelCase } from "../../Utils/convertToCamelCase.js";
+import { collectSchemaComponents } from "../../Utils/collectSchemaComponents.js";
 import { BankTransactions } from "xero-node";
 
 export const GetBankTransactionTool: IMcpServerTool = {
@@ -108,13 +109,19 @@ export const CreateBankTransactionsTool: IMcpServerTool = {
         "Transactions with an array of BankTransaction objects to create",
       properties:
         XeroAccountingApiSchema.components.schemas.BankTransactions.properties,
+      components: collectSchemaComponents(
+        XeroAccountingApiSchema.components.schemas.BankTransactions.properties
+      ),
       example:
         '{ bankTransactions: [{ type: "SPEND", date: "2023-01-01", reference: "INV-001", subTotal: "100", total: "115", totalTax: "15", lineItems: [{ accountCode: "401", description: "taxi fare", lineAmount: "115" }], contact: { contactId: "00000000-0000-0000-0000-000000000000", name: "John Doe" }, "bankAccount": { "accountID": "6f7594f2-f059-4d56-9e67-47ac9733bfe9", "Code": "088", "Name": "Business Wells Fargo" } }]}',
     },
   },
   requestHandler: async (request) => {
     const rawInputData = request.params.arguments;
-    const parsedData = parseArrayValues(rawInputData);
+    const parsedData = parseArrayValues(
+      rawInputData,
+      CreateBankTransactionsTool.requestSchema.inputSchema
+    );
     const bankTransactions: BankTransactions = convertToCamelCase(parsedData);
     const response =
       await XeroClientSession.xeroClient.accountingApi.createBankTransactions(
@@ -158,12 +165,18 @@ export const UpdateBankTransactionTool: IMcpServerTool = {
             "Optional idempotency key. Allows safe retries without duplicating processing",
         },
       },
+      components: collectSchemaComponents(
+        XeroAccountingApiSchema.components.schemas.BankTransactions.properties
+      ),
       required: ["bankTransactionID", "bankTransactions"],
     },
   },
   requestHandler: async (request) => {
     const rawInputData = request.params.arguments;
-    const parsedData = parseArrayValues(rawInputData);
+    const parsedData = parseArrayValues(
+      rawInputData,
+      UpdateBankTransactionTool.requestSchema.inputSchema
+    );
 
     const bankTransactionID = parsedData?.bankTransactionID as string | undefined;
     const unitdp = parsedData?.unitdp as number | undefined;

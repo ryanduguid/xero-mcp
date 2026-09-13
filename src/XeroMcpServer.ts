@@ -20,11 +20,11 @@ const ACCOUNTING_OPENAPI_RESOURCE_URI = "xero-mcp://accounting/openapi.json";
 export class XeroMcpServer {
   private mcpServer: Server;
 
-  constructor() {
+  constructor(version: string) {
     this.mcpServer = new Server(
       {
         name: "Xero-MCP-Server",
-        version: "1.0.0",
+        version,
       },
       {
         capabilities: {

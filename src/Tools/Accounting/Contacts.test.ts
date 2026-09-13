@@ -17,7 +17,9 @@ jest.mock('../../XeroApiClient.js', () => ({
 const input = { Contacts: [{ Name: "O'Brien & Sons" }] };
 
 it('preserves the contact name through array parsing and camel-case conversion', () => {
-  const payload = convertToCamelCase(parseArrayValues(input));
+  const payload = convertToCamelCase(
+    parseArrayValues(input, CreateContactsTool.requestSchema.inputSchema)
+  );
   expect(Buffer.from(payload.contacts[0].name)).toEqual(Buffer.from(input.Contacts[0].Name));
 });
 
