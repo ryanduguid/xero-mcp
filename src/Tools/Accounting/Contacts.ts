@@ -90,7 +90,7 @@ export const CreateContactsTool: IMcpServerTool = {
       components: collectSchemaComponents(
         XeroAccountingApiSchema.components.schemas.Contacts.properties
       ),
-      example: '{ contacts: [{ name: "John Doe" }]}',
+      example: '{"contacts": [{"name": "John Doe"}]}',
     },
   },
   requestHandler: async (request) => {

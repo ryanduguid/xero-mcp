@@ -113,7 +113,7 @@ export const CreateBankTransactionsTool: IMcpServerTool = {
         XeroAccountingApiSchema.components.schemas.BankTransactions.properties
       ),
       example:
-        '{ bankTransactions: [{ type: "SPEND", date: "2023-01-01", reference: "INV-001", subTotal: "100", total: "115", totalTax: "15", lineItems: [{ accountCode: "401", description: "taxi fare", lineAmount: "115" }], contact: { contactId: "00000000-0000-0000-0000-000000000000", name: "John Doe" }, "bankAccount": { "accountID": "6f7594f2-f059-4d56-9e67-47ac9733bfe9", "Code": "088", "Name": "Business Wells Fargo" } }]}',
+        '{"bankTransactions": [{"type": "SPEND", "date": "2023-01-01", "reference": "INV-001", "subTotal": 100, "total": 115, "totalTax": 15, "lineItems": [{"accountCode": "401", "description": "taxi fare", "lineAmount": 115}], "contact": {"name": "John Doe", "contactID": "00000000-0000-0000-0000-000000000000"}, "bankAccount": {"accountID": "6f7594f2-f059-4d56-9e67-47ac9733bfe9", "Code": "088", "Name": "Business Wells Fargo"}}]}',
     },
   },
   requestHandler: async (request) => {
@@ -152,7 +152,7 @@ export const UpdateBankTransactionTool: IMcpServerTool = {
           properties:
             XeroAccountingApiSchema.components.schemas.BankTransactions.properties,
           example:
-            '{ bankTransactions: [{ type: "SPEND", date: "2026-01-01", reference: "Expense Update", subTotal: 100, total: 115, totalTax: 15, lineItems: [{ accountCode: "401", description: "Taxi fare", lineAmount: 115 }], contact: { contactID: "00000000-0000-0000-0000-000000000000" }, bankAccount: { accountID: "6f7594f2-f059-4d56-9e67-47ac9733bfe9" }, status: "AUTHORISED" }]}',
+            '{"bankTransactions": [{"type": "SPEND", "date": "2026-01-01", "reference": "Expense Update", "subTotal": 100, "total": 115, "totalTax": 15, "lineItems": [{"accountCode": "401", "description": "Taxi fare", "lineAmount": 115}], "contact": {"contactID": "00000000-0000-0000-0000-000000000000"}, "bankAccount": {"accountID": "6f7594f2-f059-4d56-9e67-47ac9733bfe9"}, "status": "AUTHORISED"}]}',
         },
         unitdp: {
           type: "number",

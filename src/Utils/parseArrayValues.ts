@@ -1,4 +1,4 @@
-type JsonSchema = Record<string, any>;
+export type JsonSchema = Record<string, any>;
 
 const LOCAL_REF = /^#\/(.+)$/;
 
@@ -17,7 +17,7 @@ const resolveRef = (ref: string, root: JsonSchema | undefined): JsonSchema | und
   return node && typeof node === "object" ? node : undefined;
 };
 
-const deref = (
+export const deref = (
   schema: JsonSchema | undefined,
   root: JsonSchema | undefined,
   seen: Set<string> = new Set()
