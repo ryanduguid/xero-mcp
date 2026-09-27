@@ -10,6 +10,7 @@ import {
 } from "@modelcontextprotocol/sdk/types.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { McpToolsFactory } from "./Tools/McpToolsFactory.js";
+import { validateToolArguments } from "./Utils/validateToolArguments.js";
 import { XeroAuthMiddleware } from "./Middlewares/XeroAuthMiddleware.js";
 import { AuditMiddleware } from "./Middlewares/AuditMiddleware.js";
 import { ErrorMiddleware } from "./Middlewares/ErrorMiddleware.js";
@@ -57,6 +58,7 @@ export class XeroMcpServer {
         throw new McpError(ErrorCode.InvalidParams, `Tool not found: ${name}`);
       }
       return await ErrorMiddleware(request, async (request) => {
+        validateToolArguments(mcpTool, request.params.arguments);
         return await AuditMiddleware(request, async (request) => {
           return await XeroAuthMiddleware(request, async (request) => {
             return await mcpTool.requestHandler(request);

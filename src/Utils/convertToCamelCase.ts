@@ -13,7 +13,7 @@ export const convertToCamelCase = (obj: any): any => {
   return obj;
 };
 
-const convertKeyToCamelCase = (key: string): string => {
+export const convertKeyToCamelCase = (key: string): string => {
   // If the key is already in camelCase, return it as is
   if (/^[a-z][a-zA-Z0-9]*$/.test(key)) {
     return key;
