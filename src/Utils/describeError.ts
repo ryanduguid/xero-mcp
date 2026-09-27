@@ -55,7 +55,12 @@ function parseJsonObject(text: string): object | undefined {
 function collectMessages(value: unknown, out: string[], depth: number): void {
   if (out.length >= MAX_MESSAGES || depth > MAX_DEPTH) return;
   if (typeof value === "string") {
-    if (depth === 0 && value.trim()) out.push(value.trim());
+    if (depth !== 0) return;
+    // A JSON body the SDK left as text gets the same field allowlist as a
+    // parsed one; plain text is Xero's own message and is kept.
+    const parsed = parseJsonObject(value);
+    if (parsed) collectMessages(parsed, out, depth + 1);
+    else if (value.trim()) out.push(value.trim());
     return;
   }
   if (Array.isArray(value)) {
