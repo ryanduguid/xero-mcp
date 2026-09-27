@@ -4,6 +4,7 @@ import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js'
 import { ErrorCode, LATEST_PROTOCOL_VERSION } from '@modelcontextprotocol/sdk/types.js';
 import { createInterface } from 'node:readline';
 import { PassThrough } from 'node:stream';
+import { ObjectSerializer } from 'xero-node/dist/gen/model/accounting/models.js';
 import { XeroMcpServer } from './XeroMcpServer.js';
 import { XeroClientSession } from './XeroApiClient.js';
 import { Auditor } from './Auditor.js';
@@ -69,6 +70,13 @@ const cases: [string, string, Record<string, unknown>][] = [
   }],
   ['unsupported array decoding on a read tool', 'list_invoices', { contactIDs: '["fixture-contact"]' }],
   ['wrong boolean type', 'list_contacts', { includeArchived: 'false' }],
+  ...['ContactID', 'contactID'].flatMap((key): [string, string, Record<string, unknown>][] =>
+    [42, 'not-a-uuid'].map((value) => [
+      `invalid ${key}: ${value}`, 'update_invoice', {
+        invoiceID: 'fixture-invoice', invoices: { invoices: [{ contact: { [key]: value } }] },
+      },
+    ]),
+  ),
 ];
 
 beforeEach(() => jest.clearAllMocks());
@@ -215,6 +223,48 @@ it.each(writeCases)('preserves decoded payloads and original input for $name', a
     expect(method).toHaveBeenCalledTimes(1);
     expect(method).toHaveBeenCalledWith(...sent);
     expect(args).toEqual(original);
+  });
+});
+
+it.each(['ContactID', 'contactID'])('preserves %s through SDK serialisation', async (key) => {
+  const id = '00000000-0000-0000-0000-000000000000';
+  await withClient(async (client) => {
+    const result = await client.callTool({
+      name: 'update_invoice',
+      arguments: { invoiceID: 'fixture-invoice', invoices: { invoices: [{ contact: { [key]: id } }] } },
+    });
+    expect(result.isError).not.toBe(true);
+    const payload = jest.mocked(api.updateInvoice).mock.calls[0][2];
+    expect(ObjectSerializer.serialize(payload, 'Invoices')).toMatchObject({
+      Invoices: [{ Contact: { ContactID: id } }],
+    });
+  });
+});
+
+it.each([
+  ['create_contacts', undefined, api.createContacts, 1, 'Contacts'],
+  ['create_bank_transactions', undefined, api.createBankTransactions, 1, 'BankTransactions'],
+  ['update_bank_transaction', 'bankTransactions', api.updateBankTransaction, 2, 'BankTransactions'],
+  ['update_invoice', 'invoices', api.updateInvoice, 2, 'Invoices'],
+] as const)('accepts the published JSON payload for %s', async (name, property, method, position, model) => {
+  const tool = McpToolsFactory.findToolByName(name)!;
+  const schema = tool.requestSchema.inputSchema;
+  const example = property
+    ? (schema.properties![property] as { example: string }).example
+    : schema.example;
+  const payload = JSON.parse(example as string);
+  const args = property ? {
+    [property === 'invoices' ? 'invoiceID' : 'bankTransactionID']: 'fixture-id',
+    [property]: payload,
+  } : payload;
+  await withClient(async (client) => {
+    const result = await client.callTool({ name, arguments: args });
+    expect(result.isError).not.toBe(true);
+    expect(method).toHaveBeenCalledTimes(1);
+    const serialised = ObjectSerializer.serialize(jest.mocked(method).mock.calls[0][position], model);
+    if (name !== 'create_contacts') {
+      expect(serialised[model][0].Contact.ContactID).toBe('00000000-0000-0000-0000-000000000000');
+    }
   });
 });
 
