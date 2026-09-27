@@ -66,6 +66,20 @@ describe("describeError", () => {
     expect(text).not.toContain(BEARER);
   });
 
+  it("reads only message fields from a JSON body left as text", () => {
+    const text = describeError({
+      response: {
+        statusCode: 400,
+        body: JSON.stringify({ Message: "A validation exception occurred", Elements: [{ Secret: "not for the model" }] }),
+      },
+    });
+    expect(text).toBe("Xero API 400: A validation exception occurred");
+  });
+
+  it("keeps a plain-text body as Xero's message", () => {
+    expect(describeError({ response: { statusCode: 503, body: "Service Unavailable" } })).toBe("Xero API 503: Service Unavailable");
+  });
+
   it("passes Error messages and strings through", () => {
     expect(describeError(new Error("boom"))).toBe("boom");
     expect(describeError("plain string")).toBe("plain string");
