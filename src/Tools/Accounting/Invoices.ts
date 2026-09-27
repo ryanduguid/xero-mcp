@@ -156,7 +156,7 @@ export const UpdateInvoiceTool: IMcpServerTool = {
             "Invoices payload containing an array of invoice objects",
           properties: XeroAccountingApiSchema.components.schemas.Invoices.properties,
           example:
-            '{ invoices: [{ type: "ACCREC", contact: { contactId: "00000000-0000-0000-0000-000000000000" }, date: "2026-01-01", dueDate: "2026-01-15", lineItems: [{ description: "Service", quantity: 1, unitAmount: 100, accountCode: "400", tracking: [] }], reference: "Website Design", status: "DRAFT" }]}',
+            '{"invoices": [{"type": "ACCREC", "contact": {"contactID": "00000000-0000-0000-0000-000000000000"}, "date": "2026-01-01", "dueDate": "2026-01-15", "lineItems": [{"description": "Service", "quantity": 1, "unitAmount": 100, "accountCode": "400", "tracking": []}], "reference": "Website Design", "status": "DRAFT"}]}',
         },
         unitdp: {
           type: "number",
