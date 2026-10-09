@@ -1,5 +1,10 @@
 # Xero MCP Server
 
+**Fork status**
+
+[![Fork code quality](https://app.codacy.com/project/badge/Grade/63a15217a5db4528a757e5a130843152?branch=main)](https://app.codacy.com/gh/ryanduguid/xero-mcp/dashboard)
+[![Fork CI](https://github.com/ryanduguid/xero-mcp/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/ryanduguid/xero-mcp/actions/workflows/ci.yml)
+
 ![](https://badge.mcpx.dev?type=server "MCP Server")
 [![smithery badge](https://smithery.ai/badge/@john-zhang-dev/xero-mcp)](https://smithery.ai/server/@john-zhang-dev/xero-mcp)
 
