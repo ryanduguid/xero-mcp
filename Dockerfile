@@ -7,8 +7,9 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm install --ignore-scripts
 
-# Copy all source files
-COPY . .
+# Copy build inputs
+COPY tsconfig.json ./
+COPY src ./src
 
 # Build the project
 RUN npm run build
