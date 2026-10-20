@@ -2,10 +2,10 @@
 
 **Fork status**
 
-[![Fork code quality](https://app.codacy.com/project/badge/Grade/63a15217a5db4528a757e5a130843152?branch=main)](https://app.codacy.com/gh/ryanduguid/xero-mcp/dashboard)
-[![Fork CI](https://github.com/ryanduguid/xero-mcp/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/ryanduguid/xero-mcp/actions/workflows/ci.yml)
+[![Fork code quality](https://img.shields.io/codacy/grade/63a15217a5db4528a757e5a130843152/main?style=flat&labelColor=000000)](https://app.codacy.com/gh/ryanduguid/xero-mcp/dashboard)
+[![Fork CI](https://img.shields.io/github/actions/workflow/status/ryanduguid/xero-mcp/ci.yml?branch=main&label=CI&style=flat&labelColor=000000)](https://github.com/ryanduguid/xero-mcp/actions/workflows/ci.yml)
 
-![](https://badge.mcpx.dev?type=server "MCP Server")
+![](https://img.shields.io/badge/MCP-Server-66023C?style=flat&labelColor=000000&color=66023C "MCP Server")
 [![smithery badge](https://smithery.ai/badge/@john-zhang-dev/xero-mcp)](https://smithery.ai/server/@john-zhang-dev/xero-mcp)
 
 This MCP server allows Clients to interact with [Xero Accounting Software](https://www.xero.com).
