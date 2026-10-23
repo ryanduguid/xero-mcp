@@ -6,7 +6,6 @@
 [![Fork CI](https://img.shields.io/github/actions/workflow/status/ryanduguid/xero-mcp/ci.yml?branch=main&label=CI&style=flat&labelColor=000000)](https://github.com/ryanduguid/xero-mcp/actions/workflows/ci.yml)
 
 ![](https://img.shields.io/badge/MCP-Server-66023C?style=flat&labelColor=000000&color=66023C "MCP Server")
-[![smithery badge](https://smithery.ai/badge/@john-zhang-dev/xero-mcp)](https://smithery.ai/server/@john-zhang-dev/xero-mcp)
 
 This MCP server allows Clients to interact with [Xero Accounting Software](https://www.xero.com).
 
