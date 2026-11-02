@@ -3,7 +3,8 @@
 **Fork status**
 
 [![Fork code quality](https://app.codacy.com/project/badge/Grade/63a15217a5db4528a757e5a130843152?branch=main)](https://app.codacy.com/gh/ryanduguid/xero-mcp/dashboard)
-[![Fork CI](https://github.com/ryanduguid/xero-mcp/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/ryanduguid/xero-mcp/actions/workflows/ci.yml)
+
+GitHub Actions is off for this fork, so `ci.yml` does not run on GitHub. Run its steps locally before merging.
 
 ![](.github/assets/badges/mcp.svg "MCP Server")
 
