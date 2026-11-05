@@ -4,6 +4,8 @@
 
 [![Fork code quality](https://app.codacy.com/project/badge/Grade/63a15217a5db4528a757e5a130843152?branch=main)](https://app.codacy.com/gh/ryanduguid/xero-mcp/dashboard)
 
+ryanduguid/xero-mcp is [Ryan Duguid](https://duguid.com.au/)'s distribution fork of [john-zhang-dev/xero-mcp](https://github.com/john-zhang-dev/xero-mcp), adding tool argument validation, schema and array parsing corrections, a tool error flag and loopback OAuth binding for Xero MCP users who build from source.
+
 GitHub Actions is off for this fork, so `ci.yml` does not run on GitHub. Run its steps locally before merging.
 
 ![](.github/assets/badges/mcp.svg "MCP Server")
@@ -32,7 +34,7 @@ This MCP server allows Clients to interact with [Xero Accounting Software](https
 
 3. Choose an installation route.
 
-   `xero-mcp` on npm is the upstream release (2.2.2). It does not carry the changes in this fork, including the loopback binding note above, the schema and array-parsing corrections and the tool error flag. Pick the route that matches what you want:
+   [`xero-mcp`](https://www.npmjs.com/package/xero-mcp) on npm is the upstream release (2.2.2, published 29 July 2026). It does not carry the changes in this fork, including the loopback binding note above, the schema and array-parsing corrections and the tool error flag. Pick the route that matches what you want:
 
    - Upstream release: keep `npx -y xero-mcp@latest` in the examples below.
    - This fork: clone it, run `npm ci && npm run build`, then point `command` at `node` and `args` at the absolute path of `build/index.js`.
