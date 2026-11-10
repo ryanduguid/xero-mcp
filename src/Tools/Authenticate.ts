@@ -97,8 +97,16 @@ export const AuthenticateTool: IMcpServerTool = {
             authClient.setTokenSet(tokenSet);
             await authClient.updateTenants();
             if (finished) return;
-            const tenant = authClient.tenants[0];
-            if (!tenant) throw new Error("No Xero tenant is available.");
+            const tenants = authClient.tenants;
+            if (tenants.length === 0) throw new Error("No Xero tenant is available.");
+            const configuredTenantId = process.env.XERO_TENANT_ID?.trim();
+            if (!configuredTenantId && tenants.length > 1) {
+              throw new Error("Multiple Xero tenants are available. Set XERO_TENANT_ID to select one.");
+            }
+            const tenant = configuredTenantId
+              ? tenants.find(({ tenantId }) => tenantId === configuredTenantId)
+              : tenants[0];
+            if (!tenant) throw new Error("XERO_TENANT_ID does not match a connected Xero tenant.");
             XeroClientSession.xeroClient = authClient;
             XeroClientSession.setActiveTenantId(
               tenant.tenantId,
