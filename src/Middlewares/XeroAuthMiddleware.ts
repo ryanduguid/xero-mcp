@@ -7,7 +7,10 @@ export const XeroAuthMiddleware: IRequestMiddleware = async (request, next) => {
   if (name === AuthenticateTool.requestSchema.name) {
     return await AuthenticateTool.requestHandler(request);
   }
-  if (!XeroClientSession.isAuthenticated()) {
+  if (
+    !XeroClientSession.isAuthenticated() ||
+    !(await XeroClientSession.ensureFreshToken())
+  ) {
     return Promise.resolve({
       isError: true,
       content: [

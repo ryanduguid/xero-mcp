@@ -25,6 +25,7 @@ class XeroApiClient {
   xeroClient: XeroClient;
   private _activeTenantId: string | undefined;
   private _refreshTimer: ReturnType<typeof setTimeout> | undefined;
+  private _refreshing: Promise<void> | undefined;
   private static readonly INACTIVITY_MS = 30 * 60 * 1000; // 30 minutes
   private static readonly REFRESH_BUFFER_S = 2 * 60; // 2 minutes
 
@@ -89,13 +90,8 @@ class XeroApiClient {
         return;
       }
 
-      console.error("Refreshing Xero token...");
       try {
-        const newTokenSet = await client.refreshToken();
-        if (client !== this.xeroClient) return;
-        this.xeroClient.setTokenSet(newTokenSet);
-        console.error("Xero token refreshed successfully");
-        this.scheduleTokenRefresh(newTokenSet);
+        await this.refreshTokenSet(client);
       } catch (error) {
         console.error("Error refreshing Xero token: ", error);
         if (client === this.xeroClient && retry < 3) {
@@ -103,6 +99,35 @@ class XeroApiClient {
         }
       }
     }, delayMs).unref();
+  }
+
+  // The scheduled refresh stops after a period without tool calls, so a call
+  // can arrive with an expired access token. Returns false if it cannot refresh.
+  async ensureFreshToken(): Promise<boolean> {
+    if (!this.xeroClient.readTokenSet().expired()) return true;
+    try {
+      await this.refreshTokenSet(this.xeroClient);
+      return true;
+    } catch (error) {
+      console.error("Error refreshing Xero token: ", error);
+      return false;
+    }
+  }
+
+  // Xero rotates refresh tokens, so concurrent callers share one refresh
+  // rather than spending the same refresh token twice.
+  private refreshTokenSet(client: XeroClient): Promise<void> {
+    this._refreshing ??= (async () => {
+      console.error("Refreshing Xero token...");
+      const newTokenSet = await client.refreshToken();
+      if (client !== this.xeroClient) return;
+      this.xeroClient.setTokenSet(newTokenSet);
+      console.error("Xero token refreshed successfully");
+      this.scheduleTokenRefresh(newTokenSet);
+    })().finally(() => {
+      this._refreshing = undefined;
+    });
+    return this._refreshing;
   }
 }
 
