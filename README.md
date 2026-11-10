@@ -79,7 +79,7 @@ This MCP server allows Clients to interact with [Xero Accounting Software](https
 
    ### More than one Xero organisation
 
-   If your Xero login reaches more than one organisation, add `XERO_TENANT_ID` to the environment values above, set to the tenant ID of the organisation this server should use. Without it the `authenticate` tool refuses to sign in instead of taking the first organisation Xero lists, and it also refuses a tenant ID the login does not reach. The refusal names no organisation: the server log (stderr) lists each tenant ID the login reaches with its organisation name, so copy the ID from there. With one organisation the setting is optional.
+   If your Xero login reaches more than one organisation, add `XERO_TENANT_ID` to the environment values above, set to the tenant ID of the organisation this server should use, then restart the server so it reads the value. Without it the `authenticate` tool refuses to sign in instead of taking the first organisation Xero lists, and it also refuses a tenant ID the login does not reach. The refusal names no organisation: the server writes each tenant ID the login reaches, with its organisation name, to its log on stderr, so copy the ID from there. Your MCP client decides where that log goes; its documentation for MCP server logs says where. With one organisation the setting is optional.
 
 5. Run the `authenticate` tool. That tool, and only that tool, opens the Xero login page for your consent. Complete the auth flow and manually close the web page (the Xero page does not auto close in this version). Any other Xero tool called before then returns `You must authenticate with Xero first`; it does not start the login flow for you.
 
