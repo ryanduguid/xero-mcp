@@ -43,8 +43,13 @@ it.each(['http://0.0.0.0:5000/callback', 'http://example.invalid:5000/callback',
   },
 );
 
-async function startLogin(uri = 'http://127.0.0.1:5000/callback', failures: Record<string, string> = {}) {
-  jest.replaceProperty(process, 'env', { XERO_REDIRECT_URI: uri });
+async function startLogin(
+  uri = 'http://127.0.0.1:5000/callback',
+  failures: Record<string, string> = {},
+  tenantId?: string,
+  tenants?: { tenantId: string; tenantName: string }[],
+) {
+  jest.replaceProperty(process, 'env', { XERO_REDIRECT_URI: uri, XERO_TENANT_ID: tenantId });
   let handler: any;
   const servers: any[] = [];
   jest.spyOn(http, 'createServer').mockImplementation(() => {
@@ -65,6 +70,8 @@ async function startLogin(uri = 'http://127.0.0.1:5000/callback', failures: Reco
     return server as never;
   });
   const { XeroClientSession: session } = require('../XeroApiClient.js');
+  const liveClient = session.xeroClient;
+  if (tenants) session.createAuthenticationClient.mockReturnValueOnce({ ...liveClient, tenants });
   const { AuthenticateTool: tool } = require('./Authenticate.js');
   const openBrowser = require('open').default;
   openBrowser.mockResolvedValue({ kill: jest.fn() });
@@ -72,7 +79,7 @@ async function startLogin(uri = 'http://127.0.0.1:5000/callback', failures: Reco
   for (let i = 0; i < 20; i++) await Promise.resolve();
   const state = new URL(await session.xeroClient.buildConsentUrl.mock.results[0].value).searchParams.get('state');
   return {
-    result, state, session, server: servers[0], servers, tool, openBrowser,
+    result, state, session, liveClient, server: servers[0], servers, tool, openBrowser,
     request: async (url: string) => {
       const response = { writeHead: jest.fn(), end: jest.fn() };
       await handler({ url }, response);
@@ -85,6 +92,39 @@ async function startLogin(uri = 'http://127.0.0.1:5000/callback', failures: Reco
     },
   };
 }
+
+// Fabricated organisations only.
+const DEMO_AU = { tenantId: 'aaaaaaaa-1111-4111-8111-111111111111', tenantName: 'Demo AU' };
+const DEMO_NZ = { tenantId: 'bbbbbbbb-2222-4222-8222-222222222222', tenantName: 'Demo NZ' };
+
+it('signs in to the organisation XERO_TENANT_ID names, not the first Xero lists', async () => {
+  const login = await startLogin(undefined, {}, DEMO_NZ.tenantId, [DEMO_AU, DEMO_NZ]);
+  await login.callback({ code: 'synthetic-code', state: login.state! });
+  expect(await login.result).toMatchObject({ content: [{ text: 'Authenticated successfully' }] });
+  expect(login.session.setActiveTenantId).toHaveBeenCalledWith(DEMO_NZ.tenantId);
+});
+
+it.each([
+  { configured: undefined, tenants: [DEMO_AU, DEMO_NZ], reason: /2 Xero organisations.*Set XERO_TENANT_ID/ },
+  { configured: DEMO_NZ.tenantId, tenants: [DEMO_AU], reason: /is not among the 1 Xero organisation/ },
+])('refuses the sign-in when XERO_TENANT_ID is $configured', async ({ configured, tenants, reason }) => {
+  const log = jest.spyOn(console, 'error').mockImplementation(() => {});
+  const login = await startLogin(undefined, {}, configured, tenants);
+  const response = await login.callback({ code: 'synthetic-code', state: login.state! });
+  expect(response.writeHead.mock.calls[0][0]).toBe(500);
+  const refusal = await login.result;
+  expect(refusal).toMatchObject({ message: expect.stringMatching(reason) });
+  // The organisations go to the server log, never to the model or the browser page.
+  const shown = refusal.message + JSON.stringify(response.end.mock.calls);
+  for (const { tenantId, tenantName } of tenants) {
+    expect(shown).not.toContain(tenantId);
+    expect(shown).not.toContain(tenantName);
+    expect(log.mock.calls.flat().join(' ')).toContain(`${tenantId} (${tenantName})`);
+  }
+  expect(login.session.xeroClient).toBe(login.liveClient);
+  expect(login.session.setActiveTenantId).not.toHaveBeenCalled();
+  expect(login.session.scheduleTokenRefresh).not.toHaveBeenCalled();
+});
 
 it('listens on both loopback families for localhost and closes both after success', async () => {
   const login = await startLogin('http://localhost:5000/callback');

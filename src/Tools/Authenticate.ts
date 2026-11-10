@@ -1,5 +1,6 @@
 import { XeroClientSession } from "../XeroApiClient.js";
 import { IMcpServerTool } from "./IMcpServerTool.js";
+import { chooseTenantId } from "../Utils/chooseTenantId.js";
 import http from "http";
 import { randomBytes } from "node:crypto";
 import open from "open";
@@ -97,12 +98,9 @@ export const AuthenticateTool: IMcpServerTool = {
             authClient.setTokenSet(tokenSet);
             await authClient.updateTenants();
             if (finished) return;
-            const tenant = authClient.tenants[0];
-            if (!tenant) throw new Error("No Xero tenant is available.");
+            const tenantId = chooseTenantId(authClient.tenants);
             XeroClientSession.xeroClient = authClient;
-            XeroClientSession.setActiveTenantId(
-              tenant.tenantId,
-            );
+            XeroClientSession.setActiveTenantId(tenantId);
             XeroClientSession.scheduleTokenRefresh(tokenSet);
 
             res.writeHead(200, { "Content-Type": "text/html; charset=utf-8" });

@@ -77,6 +77,10 @@ This MCP server allows Clients to interact with [Xero Accounting Software](https
 
    The server will be available in your next Claude Code session. To make it available across all projects, add `--scope user` to the command above.
 
+   ### More than one Xero organisation
+
+   If your Xero login reaches more than one organisation, add `XERO_TENANT_ID` to the environment values above, set to the tenant ID of the organisation this server should use, then restart the server so it reads the value. Without it the `authenticate` tool refuses to sign in instead of taking the first organisation Xero lists, and it also refuses a tenant ID the login does not reach. The refusal names no organisation: the server writes each tenant ID the login reaches, with its organisation name, to its log on stderr, so copy the ID from there. Your MCP client decides where that log goes; its documentation for MCP server logs says where. With one organisation the setting is optional.
+
 5. Run the `authenticate` tool. That tool, and only that tool, opens the Xero login page for your consent. Complete the auth flow and manually close the web page (the Xero page does not auto close in this version). Any other Xero tool called before then returns `You must authenticate with Xero first`; it does not start the login flow for you.
 
    **Privacy alert: after completing the Xero OAuth2 flow, your Xero data may go through the LLM that you use. If you are doing testing you should authorize to your [Xero Demo Company](https://central.xero.com/s/article/Use-the-demo-company).**
