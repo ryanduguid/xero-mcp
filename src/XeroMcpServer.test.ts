@@ -14,6 +14,7 @@ import { validateToolArguments } from './Utils/validateToolArguments.js';
 jest.mock('./XeroApiClient.js', () => ({
   XeroClientSession: {
     isAuthenticated: jest.fn(() => true),
+    ensureFreshToken: jest.fn(async () => true),
     activeTenantId: jest.fn(() => 'fixture-tenant'),
     xeroClient: {
       accountingApi: {
